@@ -31,8 +31,19 @@ class NfcReadFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val nfcReadObserver = Observer<String> {
-            findNavController().navigate(R.id.action_NFC_EDIT)
+            if (viewModel.nfcTagUidMode)  {
+                viewModel.postNewUUID(viewModel.nfcReadEvent.value)
+                findNavController().navigate(R.id.action_NFC_WRITE)
+            } else {
+                findNavController().navigate(R.id.action_NFC_EDIT)
+            }
         }
+
         viewModel.nfcReadEvent.observe(viewLifecycleOwner, nfcReadObserver)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.nfcTagUidMode = false
     }
 }

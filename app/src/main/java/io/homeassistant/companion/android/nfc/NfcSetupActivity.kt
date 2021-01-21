@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import io.homeassistant.companion.android.BaseActivity
 import io.homeassistant.companion.android.R
 import io.homeassistant.companion.android.util.UrlHandler
+import java.math.BigInteger
 
 class NfcSetupActivity : BaseActivity() {
 
@@ -82,17 +84,36 @@ class NfcSetupActivity : BaseActivity() {
 
         if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action) {
             val nfcTagToWriteUUID = viewModel.nfcWriteTagEvent.value
+            var nfcTagId : String? = null
 
             // Create new nfc tag
-            if (nfcTagToWriteUUID == null) {
-                val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-                val ndefMessage = rawMessages?.firstOrNull() as NdefMessage?
-                val url = ndefMessage?.records?.get(0)?.toUri().toString()
-                val nfcTagId = UrlHandler.splitNfcTagId(url)
+            if (viewModel.nfcTagUidMode || nfcTagToWriteUUID == null) {
+                if (viewModel.nfcTagUidMode) {
+                    val tag : Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+
+                    tag?.let {
+                        nfcTagId = String.format(
+                            "%0" + (tag.id.size * 2).toString() + "X",
+                            BigInteger(1, tag.id)
+                        )
+
+                    }
+
+                    nfcTagId = nfcTagId?.replace("(\\w{2})(?!$)".toRegex(), "$1-")
+
+                    Log.d(TAG, "Read NFC tag UID: $nfcTagId")
+                } else {
+                    val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+                    val ndefMessage = rawMessages?.firstOrNull() as NdefMessage?
+                    val url = ndefMessage?.records?.get(0)?.toUri().toString()
+                    nfcTagId = UrlHandler.splitNfcTagId(url)
+                }
+
                 if (nfcTagId == null) {
                     Log.w(TAG, "Unable to read tag!")
                     Toast.makeText(this, R.string.nfc_invalid_tag, Toast.LENGTH_LONG).show()
                 } else {
+                    Log.d(TAG, "Posting tag to nfcReadEvent $nfcTagId")
                     viewModel.nfcReadEvent.postValue(nfcTagId)
                 }
             } else {

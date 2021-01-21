@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -39,6 +40,12 @@ class NfcWriteFragment : Fragment() {
         val nfcWriteTagDoneObserver = Observer<String> {
             findNavController().navigate(R.id.action_NFC_EDIT)
         }
+
+        btn_nfc_use_tag_uid.setOnClickListener {
+            viewModel.nfcTagUidMode = true
+            findNavController().navigate(R.id.action_NFC_READ)
+        }
+
         viewModel.nfcWriteTagDoneEvent.observe(viewLifecycleOwner, nfcWriteTagDoneObserver)
     }
 }

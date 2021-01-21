@@ -12,6 +12,8 @@ class NfcViewModel : ViewModel() {
     val nfcWriteTagEvent: MutableLiveData<String> = MutableLiveData()
     val nfcWriteTagDoneEvent: SingleLiveEvent<String> = SingleLiveEvent()
 
+    var nfcTagUidMode = false
+
     init {
         Log.i("NfcViewModel", "NfcViewModel created!")
     }
@@ -21,7 +23,7 @@ class NfcViewModel : ViewModel() {
         Log.i("NfcViewModel", "NfcViewModel destroyed!")
     }
 
-    fun postNewUUID() {
-        nfcWriteTagEvent.postValue(UUID.randomUUID().toString())
+    fun postNewUUID(uuid: String? = null) {
+        nfcWriteTagEvent.postValue(if (null !== uuid) uuid else UUID.randomUUID().toString())
     }
 }

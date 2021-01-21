@@ -27,6 +27,9 @@
         tools:layout="@layout/fragment_nfc_write">
 
         <action
+            android:id="@+id/action_NFC_READ"
+            app:destination="@id/ReadFragment" />
+        <action
             android:id="@+id/action_NFC_EDIT"
             app:destination="@id/EditFragment" />
     </fragment>
@@ -37,6 +40,9 @@
         android:label="@string/nfc_read_fragment_label"
         tools:layout="@layout/fragment_nfc_read">
 
+        <action
+            android:id="@+id/action_NFC_WRITE"
+            app:destination="@id/WriteFragment" />
         <action
             android:id="@+id/action_NFC_EDIT"
             app:destination="@id/EditFragment" />
